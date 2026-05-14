@@ -9,7 +9,7 @@ Some TS-7553/FMG devices expose `wlan0` but boot with a blank or invalid MAC add
 ## Install
 
 ```sh
-git clone https://github.com/YOUR_USERNAME/ts7553-wifi-tools.git
+git clone https://github.com/untucked/ts7553-wifi-tools.git
 cd ts7553-wifi-tools
 sudo ./scripts/install.sh
 ```
