@@ -2,6 +2,8 @@
 
 These notes assume manual Wi-Fi control with `wifi-on.sh` and `wifi-off.sh`, no NetworkManager, and no boot-time Wi-Fi service.
 
+On TS-7553 systems, Ethernet may appear as `end0` rather than `eth0`.
+
 ## `wlan0` Is Missing
 
 List interfaces:
@@ -90,6 +92,40 @@ ip route
 ```
 
 If association succeeded but DHCP fails, check the access point DHCP server, MAC filters, VLANs, or whether another device is using the same local MAC address.
+
+## DHCP Succeeds but `ping` Says Network Is Unreachable
+
+On TS-7553 systems, a stale Ethernet default route can remain on `end0` even after Wi-Fi gets a DHCP lease on `wlan0`:
+
+```text
+default via 10.0.0.1 dev end0 linkdown
+10.0.0.0/24 dev end0 proto kernel scope link src 10.0.0.193 linkdown
+10.0.0.0/24 dev wlan0 proto kernel scope link src 10.0.0.75
+```
+
+When this happens, Linux may try the linkdown Ethernet route instead of Wi-Fi and report:
+
+```text
+ping: connect: Network is unreachable
+```
+
+`wifi-on.sh` now checks the gateway learned from DHCP on `wlan0`, removes stale `end0` default routes, removes `end0` routes when Ethernet is down or has no carrier, and replaces the default route through Wi-Fi:
+
+```text
+default via <gateway> dev wlan0
+```
+
+Check the current route table:
+
+```sh
+ip route
+```
+
+If your Ethernet interface has a different name, override it:
+
+```sh
+sudo ETH_IFACE=eth0 wifi-on.sh
+```
 
 ## `ping 8.8.8.8` Works but `ping google.com` Fails
 

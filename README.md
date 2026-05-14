@@ -6,6 +6,8 @@ This repo is intentionally manual. Wi-Fi should stay off by default at boot, and
 
 Some TS-7553/FMG devices expose `wlan0` but boot with a blank or invalid MAC address such as `00:00:00:00:00:00`. `wifi-on.sh` applies a locally administered MAC address before starting `wpa_supplicant` so the interface can associate normally. Every device on the same LAN needs a unique local MAC address to avoid conflicts.
 
+On TS-7553 systems, Ethernet may appear as `end0`. After Wi-Fi DHCP succeeds, `wifi-on.sh` checks for stale `end0` routes, removes linkdown Ethernet routes when appropriate, and moves the default route to `wlan0`.
+
 ## Install
 
 ```sh
@@ -88,11 +90,15 @@ Defaults:
 
 ```sh
 IFACE=wlan0
+ETH_IFACE=end0
 MAC=02:11:22:33:44:55
 CONF=/etc/wpa_supplicant-wlan0.conf
 CTRL=/run/wpa_supplicant
 ASSOC_TIMEOUT_SEC=20
+FALLBACK_GW=10.0.0.1
 ```
+
+`FALLBACK_GW` is only used if `wifi-on.sh` cannot detect the Wi-Fi gateway from DHCP-created routes.
 
 ## Verify
 
@@ -105,6 +111,18 @@ ping -c 3 google.com
 ```
 
 If `ping 8.8.8.8` works but `ping google.com` fails, the Wi-Fi link is probably up and DNS needs attention.
+
+After `wifi-on.sh` runs, the route table should include a default route through Wi-Fi:
+
+```text
+default via <gateway> dev wlan0
+```
+
+It should not prefer a stale linkdown Ethernet route such as:
+
+```text
+default via <gateway> dev end0 linkdown
+```
 
 ## Troubleshooting
 
