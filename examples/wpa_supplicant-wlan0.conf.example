@@ -1,0 +1,16 @@
+ctrl_interface=/run/wpa_supplicant
+update_config=0
+country=US
+
+network={
+    ssid="YOUR_WIFI_SSID"
+    psk="YOUR_WIFI_PASSWORD"
+    key_mgmt=WPA-PSK
+}
+
+network={
+    ssid="YOUR_HIDDEN_WIFI_SSID"
+    scan_ssid=1
+    psk="YOUR_HIDDEN_WIFI_PASSWORD"
+    key_mgmt=WPA-PSK
+}
