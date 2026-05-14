@@ -51,6 +51,12 @@ Remove plaintext password comments after generating the hashed PSK:
 sudo sed -i '/^[[:space:]]*#psk=/d' /etc/wpa_supplicant-wlan0.conf
 ```
 
+List configured SSIDs without showing passwords or PSKs:
+
+```sh
+sudo sed -n 's/^[[:space:]]*ssid="\([^"]*\)".*/\1/p' /etc/wpa_supplicant-wlan0.conf
+```
+
 Security notes:
 
 - Do not commit `/etc/wpa_supplicant-wlan0.conf`.
